@@ -4,9 +4,16 @@ export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) {
       return NextResponse.json({ error: 'Falta configurar OPENAI_API_KEY en el servidor.' }, { status: 500 });
+    }
+
+    if (!/^[\x20-\x7E]+$/.test(apiKey)) {
+      return NextResponse.json(
+        { error: 'OPENAI_API_KEY contiene caracteres no válidos. Configura la clave nuevamente en Vercel.' },
+        { status: 500 }
+      );
     }
 
     const formData = await request.formData();
