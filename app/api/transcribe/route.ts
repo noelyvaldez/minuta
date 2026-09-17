@@ -24,8 +24,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'El audio supera el límite de 25 MB.' }, { status: 413 });
     }
 
+    const safeFileName = (file.name || 'meeting.webm')
+      .normalize('NFKD')
+      .replace(/[^\x20-\x7E]/g, '_');
+
     const upstream = new FormData();
-    upstream.append('file', file, file.name || 'meeting.webm');
+    upstream.append('file', file, safeFileName);
     upstream.append('model', process.env.OPENAI_TRANSCRIPTION_MODEL || 'gpt-4o-mini-transcribe');
     upstream.append('response_format', 'json');
     upstream.append('language', 'es');
